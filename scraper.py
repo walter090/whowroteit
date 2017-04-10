@@ -4,7 +4,18 @@ import unicodedata
 import os.path
 
 
-def scrape_poet(poet_head, poem_head, poet, folder):
+def scrape_poet(poet,
+                poet_head='https://www.poetryfoundation.org/poems-and-poets/poets/detail/',
+                poem_head='https://www.poetryfoundation.org/poems-and-poets/poems/detail/',
+                folder='poems/'):
+
+    poet_folder = folder + poet + '/'
+
+    if os.path.exists(poet_folder):
+        print '{} already scraped!'.format(poet)
+        return
+    else:
+        os.mkdir(poet_folder)
 
     sauce = request.urlopen(poet_head+poet).read()
     soup = bs.BeautifulSoup(sauce, 'lxml')
@@ -19,17 +30,16 @@ def scrape_poet(poet_head, poem_head, poet, folder):
                 poem_link = poem.find('a').get('href')
                 links.append(poem_link.split('/')[-1])
 
-    if not os.path.isfile(folder + poet):
-        f = open(folder + poet, 'w')
-        for url in links:
-            sauce = request.urlopen(poem_head + url).read()
-            poem_content = bs.BeautifulSoup(sauce, 'lxml').body.find('div', class_='poem')
-            poem = []
-            for verse in poem_content.find_all('div'):
-                ascii_verse = unicodedata.normalize('NFKD', verse.text).encode('ascii', 'ignore')
-                poem.append(ascii_verse)
-            poem_formatted = '\n'.join(poem)
-            f.write(poem_formatted)
-        f.close()
-    else:
-        print '{} already scraped!'.format(poet)
+    for url in links:
+        sauce = request.urlopen(poem_head + url).read()
+        poem_content = bs.BeautifulSoup(sauce, 'lxml').body.find('div', class_='poem')
+        poem = []
+        for verse in poem_content.find_all('div'):
+            ascii_verse = unicodedata.normalize('NFKD', verse.text).encode('ascii', 'ignore')
+            poem.append(ascii_verse)
+        poem_formatted = '\n'.join(poem)
+
+        poem_path = poet_folder+url
+        if not os.path.isfile(poem_path):
+            with open(poem_path, 'w') as f:
+                f.write(poem_formatted)
