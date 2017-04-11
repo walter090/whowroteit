@@ -13,13 +13,18 @@ def scrape_poet(*poets):
     for poet in poets:
         poet_folder = folder + poet + '/'
 
+        try:
+            sauce = request.urlopen(poet_head + poet).read()
+        except request.HTTPError:
+            print '{} does not exist in the database!'.format(poet)
+            continue
+
         if os.path.exists(poet_folder):
             print '{} already scraped!'.format(poet)
             continue
         else:
             os.mkdir(poet_folder)
 
-        sauce = request.urlopen(poet_head+poet).read()
         soup = bs.BeautifulSoup(sauce, 'lxml')
         body = soup.body
 
@@ -35,6 +40,7 @@ def scrape_poet(*poets):
         for url in links:
             sauce = request.urlopen(poem_head + url).read()
             poem_content = bs.BeautifulSoup(sauce, 'lxml').body.find('div', class_='poem')
+            # if the text format does not exist, skip the poem and move on
             if poem_content is None:
                 continue
             poem = []
@@ -48,4 +54,8 @@ def scrape_poet(*poets):
                 with open(poem_path, 'w') as f:
                     f.write(poem_formatted)
 
-        print '{} added to collection!'.format(poet)
+        if not os.listdir(poet_folder):
+            os.rmdir(poet_folder)
+            print '{} does not have any poem in text format'.format(poet)
+        else:
+            print '{} added to collection!'.format(poet)
