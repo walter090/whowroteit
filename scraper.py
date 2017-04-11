@@ -35,6 +35,8 @@ def scrape_poet(*poets):
         for url in links:
             sauce = request.urlopen(poem_head + url).read()
             poem_content = bs.BeautifulSoup(sauce, 'lxml').body.find('div', class_='poem')
+            if poem_content is None:
+                continue
             poem = []
             for verse in poem_content.find_all('div'):
                 ascii_verse = unicodedata.normalize('NFKD', verse.text).encode('ascii', 'ignore')
