@@ -19,7 +19,7 @@ def read_poem(path, remove_stop_words=False, keep_punct=False):
             poem_path = poet_path + poem
             with open(poem_path, 'r') as f:
                 poem_in_verses = f.readlines()
-                poem_in_verses = [v for v in poem_in_verses if not re.search('^\s*$', v)]
+                poem_in_verses = [v.lower() for v in poem_in_verses if not re.search('^\s*$', v)]
                 poem_in_verses = [word_tokenize(v) for v in poem_in_verses]
 
                 if remove_stop_words:
