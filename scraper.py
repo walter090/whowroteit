@@ -40,6 +40,7 @@ def scrape_poet(*poets):
         for url in links:
             sauce = request.urlopen(poem_head + url).read()
             poem_content = bs.BeautifulSoup(sauce, 'lxml').body.find('div', class_='poem')
+            [s.extract() for s in poem_content('span', {'style': 'display: none;'})]
             # if the text format does not exist, skip the poem and move on
             if poem_content is None:
                 continue
