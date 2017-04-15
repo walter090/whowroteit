@@ -85,6 +85,8 @@ def scrape_poet(poets):
 
             poem_content = bs.BeautifulSoup(sauce, 'lxml').body.find('div', class_='poem')
             try:
+                # some texts are highlighted and displays a toolbox, these text
+                # show up twice, remove them
                 [s.extract() for s in poem_content('span', {'style': 'display: none;'})]
             except TypeError:
                 pass
